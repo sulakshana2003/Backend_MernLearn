@@ -71,3 +71,58 @@ export async function deleteProduct(req,res){
         })
     }
 }
+
+
+export async function updateProduct(req,res){
+    if(!isAdmin(req)){
+        res.status(403).json({
+            message: "You are not autherize to update products"
+        })
+        return;
+    }
+    const productId = req.params.productId;
+    const updatingData = req.body;
+
+    try{
+        
+        const product = await Product.updateOne({productId : productId},updatingData)
+        res.json({
+            massage : "Product updated successfully"
+        })
+
+        if(product == null ){
+            res.status(404).json({
+                massage : "Product not found"
+            })
+        return
+    }
+        if(product.isAvailabe){
+            res.json(product)
+        }else{
+            if(!isAdmin(req)){     
+                res.status(403).json({
+                    massage : "Product is not available"
+                })
+                return
+            }   
+        }
+
+    }catch(err){
+        res.status(500).json({
+            massage : "Internal server error"
+        })
+    }
+}
+
+
+export async function getProductById(req,res){
+    const productId = req.params.productId;     
+    try {
+        const product = await Product.findOne({productId : productId});
+        res.json(product);
+    } catch (error) {
+        res.status(500).json({
+            massage : "Error occured in fetching product by id"
+        })
+    }
+}   

@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 //import studentRouter from './routes/studentRouter.js';
 import productRoute from './routes/productRoute.js';
 import userRouter from './routes/userRouter.js';
+import orderRouter from './routes/orderRoute.js';
 import jwt, { decode } from 'jsonwebtoken';
 
 const app = express();
@@ -82,6 +83,7 @@ app.post("/",(req,res)=>{
     })
 }) */
 app.use("/products",productRoute)
+app.use("/orders", orderRouter);
 
 // port number and function to run 
 // function run by app.listen so thats why we call function like this funct_name

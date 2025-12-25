@@ -65,7 +65,6 @@ export function loginUser(req,res){
               img: user.img
             },
             "sulakshana@256",
-            { expiresIn: "1h" }
           );
 
           return res.status(200).json({ message: "Login successful", user: user, token: token });
