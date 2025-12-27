@@ -6,8 +6,10 @@ import productRoute from './routes/productRoute.js';
 import userRouter from './routes/userRouter.js';
 import orderRouter from './routes/orderRoute.js';
 import jwt, { decode } from 'jsonwebtoken';
+import cors from 'cors';
 
 const app = express();
+app.use(cors());
 mongoose
   .connect(
     "mongodb+srv://admin:admin123@project1.zaykqtz.mongodb.net/?appName=Project1"
@@ -52,7 +54,7 @@ app.use((req,res,next)=>{
 
 
 //app.use("/students",studentRouter)
-app.use("/users",userRouter)
+
 
 /* app.get("/",(req,res)=>{
     Student.find().then((data)=>{
@@ -82,8 +84,9 @@ app.post("/",(req,res)=>{
         massage : "Error occured in Student save"
     })
 }) */
-app.use("/products",productRoute)
-app.use("/orders", orderRouter);
+app.use("/api/products",productRoute)
+app.use("/api/orders", orderRouter)
+app.use("/api/users", userRouter);
 
 // port number and function to run 
 // function run by app.listen so thats why we call function like this funct_name
