@@ -7,21 +7,20 @@ import userRouter from './routes/userRouter.js';
 import orderRouter from './routes/orderRoute.js';
 import jwt, { decode } from 'jsonwebtoken';
 import cors from 'cors';
+import dotenv from 'dotenv/config';
 
+
+//dotenv.config();
 const app = express();
 app.use(cors());
 mongoose
-  .connect(
-    "mongodb+srv://admin:admin123@project1.zaykqtz.mongodb.net/?appName=Project1"
-  )
-  .then(
-    ()=>
-        {
-            console.log("connected to the database")
-        } 
-).catch(()=>{
+  .connect(process.env.MONGODB_URI)
+  .then(() => {
+    console.log("connected to the database");
+  })
+  .catch(() => {
     console.log("Database connection failed!");
-});
+  });
 //mongodb+srv://admin:admin123@project1.zaykqtz.mongodb.net/?appName=Project1
 // req ek dn enne body parser ek athulin gihin 
 // ek hind meka mulinm da gnn oni okkotm kalin 
