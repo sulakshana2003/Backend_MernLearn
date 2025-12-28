@@ -34,15 +34,15 @@ app.use((req,res,next)=>{
         const token = tokenString.replace('Bearer ', '');
         console.log("Token received:", token);
 
-        jwt.verify(token, 'sulakshana@256', (err, decoded) => { 
-            if (decoded != null) {
-                console.log("Decoded token:", decoded);
-                req.user = decoded; // Attach decoded token data to the request object
-                next()
-            }else {
-                res.status(403).json({ message: "Invalid token" });
-            }
-        })
+        jwt.verify(token, process.env.JWT_KEY, (err, decoded) => {
+          if (decoded != null) {
+            console.log("Decoded token:", decoded);
+            req.user = decoded; // Attach decoded token data to the request object
+            next();
+          } else {
+            res.status(403).json({ message: "Invalid token" });
+          }
+        });
     }else {
         next();
     }
