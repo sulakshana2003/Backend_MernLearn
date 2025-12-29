@@ -10,7 +10,7 @@ import {
 const productRoute = express.Router()
 
 productRoute.get("/", getProduct);
-productRoute.post("/", saveProducts);
+productRoute.post("/add", saveProducts);
 productRoute.delete("/:productId", deleteProduct);
 productRoute.put("/:productId", updateProduct);
 productRoute.get("/:productId", getProductById);
