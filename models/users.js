@@ -1,47 +1,46 @@
 import mongoose from "mongoose";
 
-
 const usersSchema = mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
 
   firstname: {
     type: String,
-    required: true
+    required: true,
   },
 
   lastname: {
     type: String,
-    required: true
+    required: true,
   },
 
   password: {
     type: String,
-    required: true
+    required: true,
   },
 
   role: {
     type: String,
     required: true,
-    default: "customer"
+    default: "customer",
   },
   isBolcked: {
     type: Boolean,
     required: true,
-    default: false
+    default: false,
   },
 
   img: {
     type: String,
     required: true,
     default:
-      "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+      "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
   },
 });
 
-const User = mongoose.model("users",usersSchema)
+const User = mongoose.model("users", usersSchema);
 
-export default User ;
+export default User;

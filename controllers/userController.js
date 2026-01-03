@@ -1,50 +1,51 @@
 import User from "../models/users.js";
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken';    
-import dotenv from "dotenv/config"
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv/config";
+import axios from "axios";
 
-export function createUser(req,res){
-
-  if(req.body.role == "admin"){
-    if(req.user !=null ){
-      if(req.user.role != 'admin'){
+export function createUser(req, res) {
+  if (req.body.role == "admin") {
+    if (req.user != null) {
+      if (req.user.role != "admin") {
         res.status(403).json({
-          massage: "You not autherize to create an account "
-        })
-        return
-      }
-    }else{ 
-      res.status(403).json(
-        { message: "You are not autherize to create admin accounts .please login first. " 
+          massage: "You not autherize to create an account ",
         });
+        return;
+      }
+    } else {
+      res.status(403).json({
+        message:
+          "You are not autherize to create admin accounts .please login first. ",
+      });
       return;
     }
   }
 
-    const hashedPassword = bcrypt.hashSync(req.body.password, 10);
-    const user = new User({
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      email: req.body.email,
-      password: hashedPassword,
-      role: req.body.role
-    });
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+  const user = new User({
+    firstname: req.body.firstname,
+    lastname: req.body.lastname,
+    email: req.body.email,
+    password: hashedPassword,
+    role: req.body.role,
+  });
 
-    user.save()
-      .then(() => {
-        res.json({
-          message: "User created successfully!"
-        });
-      })
-      .catch(() =>{
-        res.json({
-          message: "An error occurred while creating the user."
-        })
-      })
+  user
+    .save()
+    .then(() => {
+      res.json({
+        message: "User created successfully!",
+      });
+    })
+    .catch(() => {
+      res.json({
+        message: "An error occurred while creating the user.",
+      });
+    });
 }
 
-
-export function loginUser(req,res){
+export function loginUser(req, res) {
   const email = req.body.email;
   const password = req.body.password;
   User.findOne({ email: email })
@@ -68,7 +69,12 @@ export function loginUser(req,res){
             process.env.JWT_KEY
           );
 
-          return res.status(200).json({ message: "Login successful", user: user, token: token ,role:user.role });
+          return res.status(200).json({
+            message: "Login successful",
+            user: user,
+            token: token,
+            role: user.role,
+          });
         }
       }
     })
@@ -77,11 +83,66 @@ export function loginUser(req,res){
     });
 }
 
-
-export function isAdmin(req){
-  if(req.user != null && req.user.role === 'admin'){
+export function isAdmin(req) {
+  if (req.user != null && req.user.role === "admin") {
     return true;
-  }else{
-    return false
+  } else {
+    return false;
+  }
+}
+
+export async function loginWithGoogle(req, res) {
+  const token = req.body.token;
+  if (!token) {
+    return res.status(400).json({ message: "Token is required" });
+  }
+  try {
+    const googleUser = await axios.get(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    let user = await User.findOne({ email: googleUser.data.email });
+    if (!user) {
+      user = new User({
+        firstname: googleUser.data.given_name,
+        lastname: googleUser.data.family_name,
+        email: googleUser.data.email,
+        password: bcrypt.hashSync(Math.random().toString(36).slice(-8), 10),
+        role: "customer",
+        img: googleUser.data.picture,
+      });
+      await user.save();
+    }
+
+    const jwtToken = jwt.sign(
+      {
+        email: user.email,
+        role: user.role,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        img: user.img,
+      },
+      process.env.JWT_KEY
+    );
+
+    return res.status(200).json({
+      message: "Login successful",
+      user: user,
+      token: jwtToken,
+      role: user.role,
+    });
+  } catch (err) {
+    console.log("Google error:", err.response?.status);
+    console.log("Google data:", err.response?.data);
+    console.log("Msg:", err.message);
+    return res.status(500).json({
+      message: "An error occurred during Google login",
+      error: err.response?.data || err.message,
+    });
   }
 }
