@@ -127,3 +127,22 @@ export async function getProductById(req, res) {
     });
   }
 }
+
+export async function searchProducts(req, res) {
+  const query = req.query.q;
+  try {
+    const products = await Product.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        //altNames field search. altnames is array so we can directly search
+        { altNames: { $elemMatch: { $regex: query, $options: "i" } } },
+        { description: { $regex: query, $options: "i" } },
+      ],
+    });
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({
+      massage: "Error occured in searching products",
+    });
+  }
+}
